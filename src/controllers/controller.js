@@ -4,7 +4,7 @@ const BlogModel = require("../models/blogModel");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
-// 1st
+
 
 // const createAuthors = async function (req, res) {
 //     try {
