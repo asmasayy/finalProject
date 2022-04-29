@@ -4,24 +4,8 @@ const BlogModel = require("../models/blogModel");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 
+// 1st
 
-
-// const createAuthors = async function (req, res) {
-//     try {
-//         let a = req.body;
-//         // We have handled edge cases here
-//         if (a.firstName === undefined || a.lastName === undefined || a.title === undefined || a.password === undefined) {
-//             return res.status(400).send({ status: false, msg: "Mandatory field missing" })
-//         }
-
-//         //  here the model is created in database
-//         let savedDate = await AuthorModel.create(a)
-//         res.status(201).send({ status: true, savedDate })
-//     } catch (error) {
-//         res.status(500).send({ status: false, msg: error.message });
-//     }
-// }
-// module.exports.createAuthors = createAuthors;
 const createAuthors = async function (req, res) {
     try {
         let a = req.body;
@@ -34,11 +18,11 @@ const createAuthors = async function (req, res) {
 
             //  here the model is created in database
             let savedDate = await AuthorModel.create(a)
-            res.status(201).send({ status: true, savedDate })
+            res.status(201).send({ status: true, msg: savedDate })
 
         }
         else {
-            return res.status(400).send({ msg: "BAD REQUEST" })
+            return res.status(400).send({ status: false, msg: "BAD REQUEST" })
         }
 
     } catch (error) {
@@ -52,25 +36,24 @@ module.exports.createAuthors = createAuthors;
 
 const createBlogs = async function (req, res) {
     try {
-        if (!req.body.authorId) {
-            return res.status(400).send({ status: false, msg: "First Add Author-Id In Body" });
+        let data = req.body
+        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "BAD REQUEST" })
+
+        if (data.title === undefined || data.tags === undefined || data.category === undefined || data.subcategory === undefined) {
+            return res.status(400).send({ status: false, msg: "Mandatory field missing" })
         }
 
-        let authorid = await AuthorModel.findById(req.body.authorId);
+        let authorid = await AuthorModel.findById(data.authorId);
         if (!authorid) {
-            return res.status(400).send({ status: false, msg: "Plz Enter Valid Author Id" });
+            return res.status(400).send({ status: false, msg: " AuthorId is required or not valid" });
         }
 
-        if (req.body.isPublished == true) {
+        if (data.isPublished == true) {
             req.body.publishedAt = Date.now();
-            let createblogs = await BlogModel.create(req.body);
+            let createblogs = await BlogModel.create(data);
 
-            res.status(201).send({ createblogs });
+            res.status(201).send({ status: true, msg: createblogs });
         }
-        else (req.body.isPublished == true)
-        let createblogs = await BlogModel.create(req.body);
-        res.status(201).send({ createblogs });
-
     }
     catch (err) {
         return res.status(500).send({ status: false, msg: err.message });
@@ -81,23 +64,6 @@ module.exports.createBlogs = createBlogs;
 
 // 3rd
 
-// const getBlogs = async function (req, res) {
-//     try {
-//         req.query.isDeleted = false
-//         req.query.isPublished = true
-//         // here we are checking query validation
-//         let filter = await BlogModel.find(req.query).populate("authorId");
-//         if (!filter.length)
-//             return res.status(404).send({ status: false, msg: "No such documents found." })
-//         res.status(200).send({ status: true, data: filter })
-//     }
-//     catch (err) {
-//         console.log(err.message)
-//         res.status(500).send({ status: false, msg: err.message })
-//     }
-// }
-// module.exports.getBlogs = getBlogs;
-
 const getBlogs = async function (req, res) {
     try {
         req.query.isDeleted = false
@@ -105,11 +71,11 @@ const getBlogs = async function (req, res) {
         // here we are checking query validation
         let filter = await BlogModel.find(req.query).populate("authorId");
         if (!filter.length)
-            return res.status(404).send({ status: false, msg: "No such document found." })
+            return res.status(404).send({ status: false, msg: "No such documents found." })
         res.status(200).send({ status: true, data: filter })
     }
     catch (err) {
-        
+        console.log(err.message)
         res.status(500).send({ status: false, msg: err.message })
     }
 }
@@ -220,11 +186,3 @@ const login = async function (req, res) {
 
 
 module.exports.login = login;
-
-const delete1= async function(req,res){
-let data = req.params
-let deleteData= await BlogModel.find()
- let Data = await BlogModel.updateMany({deleteData},{$set:{isDeleted:false}})
- res.send({msg:Data})
-}
-module.exports.delete1= delete1;

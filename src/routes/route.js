@@ -21,8 +21,6 @@ router.delete("/Blogs",middleware.authentication,middleware.authUser,allControll
 
 router.post("/login",allControllers.login);
 
-router.delete("/delete",allControllers.delete1)
-
 
 
 
