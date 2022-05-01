@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken")
 const BlogModel = require("../models/blogModel")
+// const { check, validationResult } = require("express-validator");
 
 const authentication = async function (req, res, next) {
     try {
@@ -21,41 +22,35 @@ const authentication = async function (req, res, next) {
     next()
 }
 
-// const authUser = async function (req, res, next) {
-//     try {
-//         let token = req.headers['x-api-key'] || req.headers['X-Api-Key']
-
-//         let decodedToken = jwt.verify(token, "bloggers")
-//         console.log(decodedToken.authorId)
-
-//         let bloggId = await BlogModel.findById({ _id: decodedToken.authorId })
-//         console.log(bloggId)
-//         if(!bloggId){
-//             return res.send({status:true,msg:"Unauthorised access"})
-//         }
-//         next()
-//     } catch (err) {
-//         return res.status(500).send({ status: false, msg: err.message })
-//     }
-    
-// }
-
-const authUser=async function(req,res,next){
-    try{
+const authUser = async function (req, res, next) {
+    try {
         let token = req.headers['x-api-key'] || req.headers['X-Api-Key']
 
         let decodedToken = jwt.verify(token, "bloggers")
+        console.log(decodedToken.authorId)
+        let decode= decodedToken.authorId
 
-    let userId=req.query.authorId
-    let userlogged=decodedToken.authorId
-    
-    if(userlogged != userId){
-        res.status(403).send({status:false,msg:"Unauthorised access"})
+        let blogId = req.params.blogId
+        
+
+        let blog = await BlogModel.findById( blogId )
+
+        if (!blogId) {
+            return res.send({ status: false, msg: "Blog does not exist" })
+        }
+        let authordata = blog.authorId.toString()
+        if (authordata != decode) {
+            return res.send("Not Authorised!")
+        }
+        next()
+    } catch (err) {
+        return res.status(500).send({ status: false, msg: err.message })
     }
-}catch(err){
-    return res.status(403).send({err})
+
 }
-    next()
-}
+
+
+
+
 
 module.exports = { authentication, authUser }

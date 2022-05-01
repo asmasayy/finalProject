@@ -1,28 +1,30 @@
 const express = require("express");
 const router = express.Router();
-const allControllers = require("../controllers/controller");
+const blogControllers = require("../controllers/BlogController");
 const middleware=require("../Middleware/middleware")
+const authorController=require("../controllers/authorcontroller")
 
 router.get("/test-me", function(req , res){
     res.send("Let's start!!!")
 });
 
-router.post("/createAuthor",allControllers.createAuthors);
+// ====================Author Apis=========================//
 
-router.post("/createBlog",allControllers.createBlogs);
+router.post("/createAuthor",authorController.createAuthors);
 
-router.get("/blogs",middleware.authentication,middleware.authUser,allControllers.getBlogs);
+router.post("/login",authorController.login);
 
-router.put("/Blogs/:blogId",middleware.authentication,middleware.authUser,allControllers.updateBlogs);
+// ===================Blog Apis=============================//
 
-router.delete("/blogs/:blogId",middleware.authentication,middleware.authUser,allControllers.validateBlog);
+router.post("/createBlog",blogControllers.createBlogs);
 
-router.delete("/Blogs",middleware.authentication,middleware.authUser,allControllers.deleteBlog);
+router.get("/blogs",middleware.authentication,blogControllers.getBlogs);
 
-router.post("/login",allControllers.login);
+router.put("/Blogs/:blogId",middleware.authentication,middleware.authUser,blogControllers.updateBlogs);
 
+router.delete("/blogs/:blogId",middleware.authentication,middleware.authUser,blogControllers.validateBlog);
 
-
+router.delete("/Blogs",middleware.authentication,blogControllers.deleteBlogsByQuery);
 
 
 
