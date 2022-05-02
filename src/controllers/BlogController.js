@@ -67,31 +67,49 @@ const getBlogs = async function (req, res) {
 }
 module.exports.getBlogs = getBlogs;
 
-// 3rd
+
+
 const updateBlogs = async function (req, res) {
     try {
-        let blogId = req.params.blogId
-        let data = req.body
-        if (Object.keys(data).length == 0)
-            return res.status(400).send({ status: false, msg: "body is required" })
+        let Id = req.params.blogId;
+        let PostData = req.body;
 
-        let blogData = await BlogModel.findOne({ _id: blogId, isDeleted: false })
+        let { body, title, tags, subcategory,isPublished, isDeleted } = PostData
 
-        if (!blogData) return res.status(404).send({ status: false, msg: "No such bolg" })
-
-        if (typeof data.tags == "object") {
-            blogData.tags.push(tags)
+        if (Id.length < 24) {
+            return res.status(404).send({ msg: "Enter Valid Blog-Id" });
         }
-        let updateBlogs = await BlogModel.findOneAndUpdate({ blogData }, data);
-        res.status(200).send({ status: true, msg: updateBlogs })
+        let user = await BlogModel.findById(Id)
+        if (!user) {
+            return res.status(404).send({ staus: false, msg: "No such blog exists" });
+        }
 
+        let updateBlog1 = await BlogModel.findByIdAndUpdate({ _id: Id }, {
+            $set: { body: body, title: title, isPublished: isPublished, isDeleted: isDeleted },
+            $push: { tags: tags, subcategory: subcategory }
+        }, { new: true })
+
+        if (updateBlog1.isPublished == true) {
+            
+            let updatedData = await BlogModel.findOneAndUpdate({ _id: Id }, { publishedAt: new String(Date())},{new:true});
+        }
+        if (updateBlog1.isPublished == false) {
+            let updatedData = await BlogModel.findOneAndUpdate({ _id: Id }, { publishedAt: null });;
+        }
+        if (updateBlog1.isDeleted == true) {
+            let updatedData = await BlogModel.findOneAndUpdate({ _id: Id }, { deletedAt: new String(Date())},{new:true});
+        }
+        if (updateBlog1.isDeleted == false) {
+            let updatedData = await BlogModel.findOneAndUpdate({ _id: Id }, { deletedAt: null });
+        }
+
+        return res.status(201).send({ status: true, data: updateBlog1 });
     }
-
     catch (err) {
-        res.status(500).send({ status: false, Error: err.message })
+        return res.status(500).send({ msg: err.message });
     }
 };
-module.exports.updateBlogs = updateBlogs;
+module.exports.updateBlogs = updateBlogs
 
 // 4th
 
