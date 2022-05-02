@@ -23,7 +23,7 @@ const createAuthors = async function (req, res) {
 
             //  here the model is created in database
             let savedDate = await AuthorModel.create(a)
-            res.status(201).send({ status: true, msg: savedDate })
+            res.status(201).send({ status: true, data: savedDate })
 
         }
         else {
