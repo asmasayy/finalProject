@@ -30,7 +30,7 @@ const createBlogs = async function (req, res) {
                 req.body.publishedAt = Date.now();
                 let createblogs = await BlogModel.create(data);
 
-                res.status(201).send({ status: true, msg: createblogs });
+                res.status(201).send({ status: true, data: createblogs });
             }
         } else {
             return res.status(400).send({ status: false, msg: "BAD REQUEST" })
@@ -169,7 +169,7 @@ const deleteBlogsByQuery = async function (req, res) {
 
         // perform delete here using update many 
         const deleteData = await BlogModel.updateMany(query, { $set: { isDeleted: true } });
-        res.status(200).send({ status: true, msg: deleteData });
+        res.status(200).send({ status: true, data: deleteData });
 
     } catch (error) {
         res.status(500).send({ status: false, msg: error.message });

@@ -8,10 +8,10 @@ const createAuthors = async function (req, res) {
         let a = req.body;
         if (Object.keys(a).length != 0) {
             // We have handled edge cases here
-            if (a.firstName === undefined || a.lastName === undefined || a.title === undefined || a.password === undefined) {
+            if (a.fname === undefined || a.lname === undefined || a.title === undefined || a.password === undefined) {
                 return res.status(400).send({ status: false, msg: "Mandatory field missing" })
             }
-            if (a.firstName.trim().length == 0 || a.lastName.trim().length == 0 || a.title.trim().length == 0 || a.password.trim().length == 0) {
+            if (a.fname.trim().length == 0 || a.lname.trim().length == 0 || a.title.trim().length == 0 || a.password.trim().length == 0) {
                 return res.status(400).send({ status: false, msg: "input missing" })
             }
             let checkEmail = await AuthorModel.findOne({ email: a.email })
