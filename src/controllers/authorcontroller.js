@@ -11,7 +11,7 @@ const createAuthors = async function (req, res) {
             if (a.firstName === undefined || a.lastName === undefined || a.title === undefined || a.password === undefined) {
                 return res.status(400).send({ status: false, msg: "Mandatory field missing" })
             }
-            if (a.firstName.length == 0 || a.lastName.length == 0 || a.title.length == 0 || a.password.length == 0) {
+            if (a.firstName.trim().length == 0 || a.lastName.trim().length == 0 || a.title.trim().length == 0 || a.password.trim().length == 0) {
                 return res.status(400).send({ status: false, msg: "input missing" })
             }
             let checkEmail = await AuthorModel.findOne({ email: a.email })

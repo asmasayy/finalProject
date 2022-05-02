@@ -14,35 +14,31 @@ const authentication = async function (req, res, next) {
         if (!decodedToken) {
             res.status(401).send({ status: false, msg: "token is invalid" })
         }
+        req["decodedToken"] = decodedToken 
+
+        next()
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
-
-
-    next()
 }
 
 const authUser = async function (req, res, next) {
     try {
-        let token = req.headers['x-api-key'] || req.headers['X-Api-Key']
-
-        let decodedToken = jwt.verify(token, "bloggers")
-        console.log(decodedToken.authorId)
-        let decode= decodedToken.authorId
+    
+        let authorId= req.decodedToken.authorId
+        // console.log(authorId)
 
         let blogId = req.params.blogId
-        
+        // console.log(blogId)
 
-        let blog = await BlogModel.findById( blogId )
+        let blog = await BlogModel.findOne( {authorId: authorId, _id:blogId})
 
-        if (!blogId) {
-            return res.send({ status: false, msg: "Blog does not exist" })
-        }
-        let authordata = blog.authorId.toString()
-        if (authordata != decode) {
-            return res.send("Not Authorised!")
-        }
+        if (!blog) {
+            return res.status(403).send({ status: false, msg: "Blog does not exist" })
+        } 
+
         next()
+
     } catch (err) {
         return res.status(500).send({ status: false, msg: err.message })
     }
@@ -54,3 +50,11 @@ const authUser = async function (req, res, next) {
 
 
 module.exports = { authentication, authUser }
+
+
+
+
+// let authordata = blog.authorId.toString()
+// if (authordata != decode) {
+//     return res.send("Not Authorised!")
+// }

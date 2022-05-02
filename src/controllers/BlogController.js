@@ -70,36 +70,25 @@ module.exports.getBlogs = getBlogs;
 // 3rd
 const updateBlogs = async function (req, res) {
     try {
-        let Id = req.params.blogId
-        if (Id.match()) {
+        let blogId = req.params.blogId
+        let data = req.body
+        if (Object.keys(data).length == 0)
+            return res.status(400).send({ status: false, msg: "body is required" })
 
-            let user = await BlogModel.findById(Id)
-            if (!user) {
-                return res.status(404).send({ staus: false, msg: "No such blog exists" });
-            }
-            let userData = req.body.body
-            let userData1 = req.body.title
-            let subcategory = req.body.subcategory;
-            let addTag = req.body.tags
+        let blogData = await BlogModel.findOne({ _id: blogId, isDeleted: false })
 
-            let updatedBlog = await BlogModel.findByIdAndUpdate({ _id: Id },
-                { $push: { "tags": addTag, "subcategory": subcategory } })
-                .findOneAndUpdate({ $set: { body: userData } }, { $set: { title: userData1 } }, { new: true })
-            if (updatedBlog.isPublished == true) {
-                updatedBlog.publishedAt = new Date();
-            }
-            if (updatedBlog.isPublished == false) {
-                updatedBlog.publishedAt = null;
-            }
+        if (!blogData) return res.status(404).send({ status: false, msg: "No such bolg" })
 
-            return res.status(201).send({ status: true, data: updatedBlog });
+        if (typeof data.tags == "object"){
+            blogData.tags.push(tags)
         }
-
-        else res.status(400).send({ msg: "BAD REQUEST" })
+        let updateBlogs = await BlogModel.findOneAndUpdate({ blogData },data, blogData.tags.push(tags))
+        res.status(200).send({ status: true, msg: updateBlogs })
+        
     }
 
     catch (err) {
-        res.status(500).send({ status: false })
+        res.status(500).send({ status: false, Error: err.message })
     }
 };
 module.exports.updateBlogs = updateBlogs;
@@ -116,7 +105,7 @@ const validateBlog = async function (req, res) {
         }
         let updatedBlog = await BlogModel.findByIdAndUpdate({ _id: blogId },
             { $set: { isDeleted: true } }, { deletedAt: Date.now() })
-        res.status(200).send({ msg: "Successfully updated." })
+        res.status(200).send({ status: true, msg: "Successfully updated." })
     }
     catch (err) {
         console.log(err.message)
