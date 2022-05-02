@@ -79,12 +79,12 @@ const updateBlogs = async function (req, res) {
 
         if (!blogData) return res.status(404).send({ status: false, msg: "No such bolg" })
 
-        if (typeof data.tags == "object"){
+        if (typeof data.tags == "object") {
             blogData.tags.push(tags)
         }
-        let updateBlogs = await BlogModel.findOneAndUpdate({ blogData },data, blogData.tags.push(tags))
+        let updateBlogs = await BlogModel.findOneAndUpdate({ blogData }, data);
         res.status(200).send({ status: true, msg: updateBlogs })
-        
+
     }
 
     catch (err) {
@@ -119,9 +119,7 @@ const deleteBlogsByQuery = async function (req, res) {
     try {
         let data = req.query;
         // add a query variable and add a default key value [ isDeleted: false ]
-        let query = {
-            isDeleted: false
-        };
+        let query = { isDeleted: false} ;
 
         if (Object.keys(data).length == 0) {
             //-> if data undefined
@@ -132,60 +130,31 @@ const deleteBlogsByQuery = async function (req, res) {
         } else {
             //-> if tags defined
             if (data.tags) {
-                data.tags = {
-                    $in: data.tags
-                };
+                data.tags = { $in: data.tags };
             }
 
             //-> if subcategory defined
             if (data.subcategory) {
-                data.subcategory = {
-                    $in: data.subcategory
-                };
+                data.subcategory = { $in: data.subcategory };
             }
 
             // create a query structure in [ query.$or = ... }
-            query["$or"] = [{
-                authorId: data.authorId
-            },
-            {
-                tags: data.tags
-            },
-            {
-                category: data.category
-            },
-            {
-                subcategory: data.subcategory
-            }
-            ];
+            query["$or"] = [{ authorId: data.authorId }, { tags: data.tags }, { category: data.category }, { subcategory: data.subcategory }];
         }
 
         // console.log(query)
         // check if the query related data exist OR not
         const available = await BlogModel.find(query).count();
         if (available == 0) {
-            return res.status(404).send({
-                status: false,
-                msg: "query data not found"
-            });
+            return res.status(404).send({ status: false, msg: "query data not found" });
         }
 
         // perform delete here using update many 
-        const deleteData = await BlogModel.updateMany(query, {
-            $set: {
-                isDeleted: true
-            }
-        });
-        res.status(200).send({
-            status: true,
-            msg: deleteData
-        });
+        const deleteData = await BlogModel.updateMany(query, { $set: { isDeleted: true } });
+        res.status(200).send({ status: true, msg: deleteData });
 
     } catch (error) {
-        res.status(500).send({
-            status: false,
-            msg: error.message
-        });
+        res.status(500).send({ status: false, msg: error.message });
     }
 };
 module.exports.deleteBlogsByQuery = deleteBlogsByQuery;
