@@ -7,7 +7,7 @@ const authentication = async function (req, res, next) {
         let token = req.headers['x-api-key'] || req.headers['X-Api-Key']
 
         if (!token) {
-            res.status(401).send({ status: false, msg: "token must be present" })
+            return res.status(401).send({ status: false, msg: "token must be present" })
         }
 
         let decodedToken = jwt.verify(token, "bloggers")
@@ -34,7 +34,7 @@ const authUser = async function (req, res, next) {
         let blog = await BlogModel.findOne( {authorId: authorId, _id:blogId})
 
         if (!blog) {
-            return res.status(403).send({ status: false, msg: "Blog does not exist" })
+            return res.status(403).send({ status: false, msg: "Not authorised" })
         } 
 
         next()
@@ -46,10 +46,42 @@ const authUser = async function (req, res, next) {
 }
 
 
+const qauth = async function (req, res, next) {
+    try {
+        let token = req.headers["x-api-key"];
+        if (!token) token = req.headers["X-Api-Key"]
+        if (!token) {
+            return res.status(400).send({ Error: "Enter x-api-key In Header" });
+        }
+        let decodedToken = jwt.verify(token, "bloggers")
+        let authorId = req.query.authorId;
+
+        // if (authorId.length < 24) {
+        //     return res.status(404).send({ msg: "Enter Valid Blog-Id" });
+        // }
+        let decoded = decodedToken.authorid
+        let blog = await BlogModel.findOne({authorId:authorId});
+        if (!blog) {
+            return res.send("Author doesn't exist");
+        }
+        let author = blog.authorId.toString()
+        console.log(author)
+        if (author != decoded) {
+            return res.status(404).send("Not Authorised!!")
+        }
+        next()
+    }
+    catch (err) {
+        return res.status(500).send({ msg: err.message });
+    }
+}
+module.exports.qauth = qauth;
 
 
 
-module.exports = { authentication, authUser }
+
+
+module.exports = { authentication, authUser,qauth }
 
 
 

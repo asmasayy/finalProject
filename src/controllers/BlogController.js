@@ -23,11 +23,17 @@ const createBlogs = async function (req, res) {
 
             let authorid = await AuthorModel.findById(data.authorId);
             if (!authorid) {
-                return res.status(400).send({ status: false, msg: " AuthorId is required or not valid" });
-            }
+                return res.status(404).send({ status: false, msg: " AuthorId is required or not valid" });
+            } 
 
             if (data.isPublished == true) {
                 req.body.publishedAt = Date.now();
+                let createblogs = await BlogModel.create(data);
+
+                res.status(201).send({ status: true, data: createblogs });
+            } 
+            else if (data.isPublished == false){
+                req.body.publishedAt = null
                 let createblogs = await BlogModel.create(data);
 
                 res.status(201).send({ status: true, data: createblogs });
@@ -48,21 +54,18 @@ module.exports.createBlogs = createBlogs;
 
 const getBlogs = async function (req, res) {
     try {
-        req.query.isDeleted = false
-        req.query.isPublished = true
+        let data = req.query
+        // find the all data filter and query
+        let blogs = await BlogModel.find({ $and: [{ isDeleted: false }, { isPublished: true }, data] }).count();
 
-
-        // here we are checking query validation
-        let filter = await BlogModel.find(req.query).populate("authorId");
-        if (!filter.length)
-            return res.status(404).send({ status: false, msg: "No such documents found." })
-
-        res.status(200).send({ status: true, data: filter })
-
+        // check data exits or not
+        if (blogs.length <= 0) {
+            return res.status(400).send({ status: false, msg: 'Data Not Found' })
+        }
+        return res.status(200).send({ status: true, data: blogs })
     }
     catch (err) {
-        console.log(err.message)
-        res.status(500).send({ status: false, msg: err.message })
+        return res.status(500).send({ status: false, msg: err.message })
     }
 }
 module.exports.getBlogs = getBlogs;

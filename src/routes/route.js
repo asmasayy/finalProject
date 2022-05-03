@@ -10,21 +10,21 @@ router.get("/test-me", function(req , res){
 
 // ====================Author Apis=========================//
 
-router.post("/createAuthor",authorController.createAuthors);
+router.post("/authors",authorController.createAuthors);
 
 router.post("/login",authorController.login);
 
 // ===================Blog Apis=============================//
 
-router.post("/createBlog",blogControllers.createBlogs);
+router.post("/blogs",blogControllers.createBlogs);
 
 router.get("/blogs",middleware.authentication,blogControllers.getBlogs);
 
-router.put("/Blogs/:blogId",middleware.authentication,middleware.authUser,blogControllers.updateBlogs);
+router.put("/blogs/:blogId",middleware.authentication,middleware.authUser,blogControllers.updateBlogs);
 
 router.delete("/blogs/:blogId",middleware.authentication,middleware.authUser,blogControllers.validateBlog);
 
-router.delete("/Blogs",middleware.authentication,blogControllers.deleteBlogsByQuery);
+router.delete("/blogs",middleware.authentication,blogControllers.deleteBlogsByQuery);
 
 
 

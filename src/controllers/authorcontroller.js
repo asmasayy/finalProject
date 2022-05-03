@@ -15,7 +15,7 @@ const createAuthors = async function (req, res) {
                 return res.status(400).send({ status: false, msg: "input missing" })
             }
             let checkEmail = await AuthorModel.findOne({ email: a.email })
-            if (checkEmail) return res.status(409).send({ msg: "Email already exist" })
+            if (checkEmail) return res.status(400).send({ msg: "Email already exist" })
 
             if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(a.email))) {
                 return res.status(400).send({ status: false, message: 'email should be a valid email address' })
